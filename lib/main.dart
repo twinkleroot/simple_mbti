@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+// 광고 패키지를 import 합니다.
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:io'; // Platform 확인을 위해 추가
 
-void main() => runApp(const MBTIApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
+  runApp(const MBTIApp());
+}
 
 // 앱의 기본 설정
 class MBTIApp extends StatelessWidget {
@@ -10,18 +17,96 @@ class MBTIApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '간단 MBTI 테스트',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Pretendard', // 앱 전체에 적용할 폰트 (필요시 pubspec.yaml에 추가)
-      ),
-      home: const HomeScreen(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const SplashScreen(),
     );
   }
 }
 
-// 1. 시작 화면
-class HomeScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 3초 후에 홈 화면으로 이동합니다.
+    Future.delayed(const Duration(seconds: 3), _navigateToHome);
+  }
+
+  void _navigateToHome() {
+    // 위젯이 화면에 없을 때 setState 등을 호출하는 에러를 방지합니다.
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      FadePageRoute(builder: (context) => const HomeScreen()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // 이미지를 화면 중앙에 배치합니다.
+      body: Center(
+        // 여기에 준비한 이미지 파일 경로를 넣으세요.
+        child: Image.asset('assets/loading.png'),
+      ),
+    );
+  }
+}
+
+// 1. 시작 화면 (StatefulWidget으로 변경)
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // 3. 광고 관련 변수 추가
+  late BannerAd _bannerAd;
+  bool _isAdLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    final adUnitId = 'ca-app-pub-9349659716533734/1643573240'; // Android 테스트 ID
+    // 플랫폼에 따라 다른 테스트 ID를 사용합니다.
+    // final adUnitId = Platform.isAndroid
+    //     ? 'ca-app-pub-3940256099942544/6300978111' // Android 테스트 ID
+    //     : 'ca-app-pub-3940256099942544/2934735716'; // iOS 테스트 ID
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +124,6 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Icon(Icons.psychology, size: 150, color: Colors.blue),
-            // Image.asset(
-              // 'assets/main_image.png', // 예시 이미지 (assets 폴더에 추가 필요)
-              // height: 200,
-              // 이미지가 없는 경우 아래 코드로 대체
-              // child: Icon(Icons.psychology, size: 150, color: Colors.blue),
-            // ),
             const SizedBox(height: 30),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -56,18 +135,26 @@ class HomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const QuestionScreen()),
+                  FadePageRoute(builder: (context) => const QuestionScreen()),
                 );
               },
             ),
           ],
         ),
       ),
+      // 4. 화면 하단에 광고 위젯 추가
+      bottomNavigationBar: _isAdLoaded
+          ? SizedBox(
+        height: _bannerAd.size.height.toDouble(),
+        width: _bannerAd.size.width.toDouble(),
+        child: AdWidget(ad: _bannerAd),
+      )
+          : const SizedBox(),
     );
   }
 }
 
-// 2. 질문 화면
+// ## 2. 질문 화면 ##
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key});
 
@@ -173,14 +260,49 @@ class _QuestionScreenState extends State<QuestionScreen> {
     },
   ];
 
-  void _answerQuestion(String type) {
-    setState(() {
-      _scores[type] = _scores[type]! + 1;
-      _questionIndex++;
-    });
+  // 1. 배너 광고에 필요한 변수 추가
+  late BannerAd _bannerAd;
+  bool _isBannerAdLoaded = false;
 
-    if (_questionIndex >= _questions.length) {
-      _showResult();
+  @override
+  void initState() {
+    super.initState();
+    // 2. initState에서 배너 광고 로드 함수 호출
+    _loadBannerAd();
+  }
+
+  // 3. 배너 광고 로드 함수 추가
+  void _loadBannerAd() {
+    final adUnitId = 'ca-app-pub-9349659716533734/1643573240'; // Android 테스트 ID
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd.load();
+  }
+
+  void _answerQuestion(String type) {
+    _scores[type] = _scores[type]! + 1;
+
+    // 변경점: 다음 질문으로 넘어가기 전에, 마지막 질문인지 먼저 확인합니다.
+    if (_questionIndex + 1 >= _questions.length) {
+      _showResult(); // 마지막 질문이면 결과 표시 함수를 바로 호출
+    } else {
+      // 마지막 질문이 아니면, 다음 질문을 보여주기 위해 상태를 업데이트
+      setState(() {
+        _questionIndex++;
+      });
     }
   }
 
@@ -193,14 +315,22 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => ResultScreen(mbtiResult: mbtiResult),
+      FadePageRoute(
+        builder: (context) => AdIntroScreen(mbtiResult: mbtiResult),
       ),
     );
   }
 
   @override
+  void dispose() {
+    // 4. 배너 광고 리소스 해제 코드 추가
+    _bannerAd.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // 기존 질문 화면
     return Scaffold(
       appBar: AppBar(
         title: Text('질문 ${_questionIndex + 1}/${_questions.length}'),
@@ -233,15 +363,147 @@ class _QuestionScreenState extends State<QuestionScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: _isBannerAdLoaded
+          ? SizedBox(
+        height: _bannerAd.size.height.toDouble(),
+        width: _bannerAd.size.width.toDouble(),
+        child: AdWidget(ad: _bannerAd),
+      )
+          : const SizedBox.shrink(), // 광고가 로드되지 않았을 때는 빈 공간
     );
   }
 }
 
-// 3. 결과 화면
-class ResultScreen extends StatelessWidget {
+// ## 3. 광고 시청을 안내하는 중간 화면 ##
+class AdIntroScreen extends StatefulWidget {
   final String mbtiResult;
 
+  const AdIntroScreen({super.key, required this.mbtiResult});
+
+  @override
+  State<AdIntroScreen> createState() => _AdIntroScreenState();
+}
+
+class _AdIntroScreenState extends State<AdIntroScreen> {
+  InterstitialAd? _resultAd;
+  bool _isAdLoading = false; // 광고 로딩 중 상태 표시를 위한 변수
+
+  // 버튼을 누르면 광고를 로드하고 표시하는 함수
+  void _loadAndShowResultAd() {
+    setState(() {
+      _isAdLoading = true; // 로딩 상태 시작
+    });
+
+    final adUnitId = 'ca-app-pub-9349659716533734/9186472609';
+
+    InterstitialAd.load(
+      adUnitId: adUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _resultAd = ad;
+          setState(() {
+            _isAdLoading = false; // 로딩 상태 종료
+          });
+
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+              _navigateToResult();
+            },
+            onAdFailedToShowFullScreenContent: (ad, error) {
+              ad.dispose();
+              _navigateToResult();
+            },
+          );
+
+          ad.show();
+        },
+        onAdFailedToLoad: (error) {
+          setState(() {
+            _isAdLoading = false;
+          });
+          _navigateToResult(); // 광고 로드 실패 시에도 결과는 보여줌
+        },
+      ),
+    );
+  }
+
+  void _navigateToResult() {
+    Navigator.pushReplacement(
+      context,
+      FadePageRoute(
+        builder: (context) => ResultScreen(mbtiResult: widget.mbtiResult),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _resultAd?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                '모든 질문에 답을 마쳤습니다.',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                '광고 하나 보는 동안 분석해서 결과를 보여드릴게요!',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              // 광고 로딩 중일 때는 로딩 아이콘을, 아닐 때는 버튼을 표시
+              _isAdLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                onPressed: _loadAndShowResultAd,
+                child: const Text('결과 보러 가기'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// 4. 결과 화면 (StatefulWidget으로 변경)
+class ResultScreen extends StatefulWidget {
+  final String mbtiResult;
   const ResultScreen({super.key, required this.mbtiResult});
+
+  @override
+  State<ResultScreen> createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends State<ResultScreen> {
+  // 3. 광고 관련 변수 추가
+  late BannerAd _bannerAd;
+  bool _isAdLoaded = false;
+
+  // 플랫폼에 따라 다른 테스트 ID를 사용합니다.
+  final adUnitId = 'ca-app-pub-9349659716533734/1643573240'; // Android 테스트 ID
+  // final adUnitId = Platform.isAndroid
+  //     ? 'ca-app-pub-3940256099942544/6300978111' // Android 테스트 ID
+  //     : 'ca-app-pub-3940256099942544/2934735716'; // iOS 테스트 ID
 
   // 각 MBTI 유형에 대한 간단한 설명
   static const Map<String, String> mbtiDescriptions = {
@@ -264,6 +526,37 @@ class ResultScreen extends StatelessWidget {
   };
 
   @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: adUnitId, // 🚨 테스트 ID입니다. 배포 시 실제 ID로 변경하세요.
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -279,12 +572,12 @@ class ResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              mbtiResult,
+              widget.mbtiResult,
               style: const TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              mbtiDescriptions[mbtiResult] ?? '결과를 찾을 수 없습니다.',
+              mbtiDescriptions[widget.mbtiResult] ?? '결과를 찾을 수 없습니다.',
               style: const TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 40),
@@ -298,7 +591,7 @@ class ResultScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  FadePageRoute(builder: (context) => const HomeScreen()),
                       (Route<dynamic> route) => false,
                 );
               },
@@ -306,6 +599,33 @@ class ResultScreen extends StatelessWidget {
           ],
         ),
       ),
+      // 4. 화면 하단에 광고 위젯 추가
+      bottomNavigationBar: _isAdLoaded
+          ? SizedBox(
+        height: _bannerAd.size.height.toDouble(),
+        width: _bannerAd.size.width.toDouble(),
+        child: AdWidget(ad: _bannerAd),
+      )
+          : const SizedBox(),
     );
   }
+}
+
+// Fade 효과를 적용하는 커스텀 PageRoute
+class FadePageRoute<T> extends PageRouteBuilder<T> {
+  // WidgetBuilder는 Widget Function(BuildContext context) 타입입니다.
+  final WidgetBuilder builder;
+
+  FadePageRoute({required this.builder})
+      : super(
+    transitionDuration: const Duration(milliseconds: 500),
+    // pageBuilder에서 전달받은 builder를 사용하여 페이지를 생성합니다.
+    pageBuilder: (context, animation, secondaryAnimation) => builder(context),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+  );
 }
