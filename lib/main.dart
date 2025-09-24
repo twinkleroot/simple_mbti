@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 // 광고 패키지를 import 합니다.
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io'; // Platform 확인을 위해 추가
+import 'package:kakao_flutter_sdk_common/kakao_flutter_sdk_common.dart';
+import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await MobileAds.instance.initialize();
+
+  KakaoSdk.init(nativeAppKey: '8fb42a2c21d5aacb4e272f60014ca431');
   runApp(const MBTIApp());
 }
 
@@ -556,6 +561,48 @@ class _ResultScreenState extends State<ResultScreen> {
     super.dispose();
   }
 
+  // 카카오톡 공유 함수
+  void _shareToKakao() async {
+    // 카카오톡 설치 여부 확인
+    if (await isKakaoTalkInstalled()) {
+      try {
+        // 공유할 메시지 템플릿 생성
+        final FeedTemplate template = FeedTemplate(
+          content: Content(
+            title: '나의 MBTI 결과는? ${widget.mbtiResult}!',
+            description: '#MBTI #성격유형 #MBTI테스트',
+            imageUrl: Uri.parse('https://mud-kage.kakaocdn.net/dn/Q2iNx/btqgeRgV54P/VLdBs9cvyn8BJXB3o7N8UK/kakaolink40_original.png'), // 예시 이미지
+            link: Link(
+              webUrl: Uri.parse('https://developers.kakao.com'), // 앱 스토어 링크 등
+              mobileWebUrl: Uri.parse('https://developers.kakao.com'),
+            ),
+          ),
+          buttons: [
+            Button(
+              title: '나도 테스트 하러가기',
+              link: Link(
+                webUrl: Uri.parse('https://developers.kakao.com'),
+                mobileWebUrl: Uri.parse('https://developers.kakao.com'),
+              ),
+            ),
+          ],
+        );
+
+        // 카카오톡으로 공유
+        await ShareClient.instance.shareDefault(template: template);
+      } catch (error) {
+        print('카카오톡 공유 실패: $error');
+      }
+    } else {
+      // 카카오톡이 설치되지 않았을 경우 웹으로 공유 시도 (예시)
+      try {
+        await launchUrl(Uri.parse('https://developers.kakao.com'));
+      } catch (error) {
+        print('웹 공유 실패: $error');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -581,20 +628,30 @@ class _ResultScreenState extends State<ResultScreen> {
               style: const TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 40),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-              child: const Text('다시 검사하기'),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  FadePageRoute(builder: (context) => const HomeScreen()),
-                      (Route<dynamic> route) => false,
-                );
-              },
+            // 버튼들을 가로로 배치하기 위해 Row 위젯 사용
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  onPressed: () { /* 다시 검사하기 로직 */ },
+                  child: const Text('다시 검사하기'),
+                ),
+                const SizedBox(width: 20), // 버튼 사이 간격
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFEE500), // 카카오 노란색
+                    foregroundColor: const Color(0xFF191919), // 검은색 글씨
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: _shareToKakao,
+                  child: const Text('카톡 공유'),
+                ),
+              ],
             ),
           ],
         ),
