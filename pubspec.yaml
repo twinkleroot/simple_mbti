@@ -37,6 +37,7 @@ dependencies:
   google_mobile_ads: ^6.0.0
   kakao_flutter_sdk_share: ^1.9.1+2
   url_launcher: ^6.2.6
+  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +89,13 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard-Regular.otf
+          weight: 400 # Regular (보통 굵기)
+        - asset: assets/fonts/Pretendard-Bold.otf
+          weight: 700 # Bold (굵은 굵기)
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
   assets:
