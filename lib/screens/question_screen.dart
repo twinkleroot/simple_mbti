@@ -36,7 +36,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   // 배너 광고 로드 함수
   void _loadBannerAd() {
-    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID']!;
+    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_BANNER']!;
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
       size: AdSize.banner,
