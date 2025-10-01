@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../data/ui_data.dart';
 import '../utils/fade_page_route.dart';
 import '../screens/result_screen.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdIntroScreen extends StatefulWidget {
   final String mbtiResult;

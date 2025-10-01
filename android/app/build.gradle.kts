@@ -1,3 +1,21 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+// .env 파일을 읽기 위한 Properties 객체 생성
+val kakaoProperties = Properties()
+// 프로젝트 루트에 있는 .env 파일 경로 지정 (현재 파일 위치 기준)
+val kakaoPropertiesFile = rootProject.file("../.env")
+// .env 파일 로드
+if (kakaoPropertiesFile.exists()) {
+    kakaoProperties.load(kakaoPropertiesFile.inputStream())
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -6,7 +24,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.simple_mbti"
+    namespace = "com.heeee.simple_mbti"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,20 +39,32 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.simple_mbti"
+        applicationId = "com.heeee.simple_mbti"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // manifestPlaceholders를 사용하여 AndroidManifest.xml에 변수를 주입
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoProperties.getProperty("KAKAO_NATIVE_APP_KEY")
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Signing with the debug keys for now,
+            // so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }

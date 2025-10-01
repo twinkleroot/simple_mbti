@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import './data/ui_data.dart';
-import './screens/splash_screen.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import './data/ui_data.dart';
+import './screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await MobileAds.instance.initialize();
+  // .env 파일 로드. 앱 시작 시 딱 한 번만 호출하면 됩니다.
+  await dotenv.load(fileName: ".env");
 
-  KakaoSdk.init(nativeAppKey: '8fb42a2c21d5aacb4e272f60014ca431');
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
+
+  await MobileAds.instance.initialize();
   runApp(const MBTIApp());
 }
 
