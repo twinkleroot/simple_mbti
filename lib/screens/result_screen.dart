@@ -23,7 +23,7 @@ class _ResultScreenState extends State<ResultScreen> {
   late BannerAd _bannerAd;
   bool _isAdLoaded = false;
   bool _isDownloading = false;
-  final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID']!;
+  final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_BANNER']!;
 
   @override
   void initState() {
@@ -266,6 +266,51 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
+  // 1. 커스텀 모달 다이얼로그 함수 추가
+  void _showCustomDownloadSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // 사용자가 외부 탭으로 닫을 수 있도록 설정
+      builder: (BuildContext dialogContext) {
+        // 다이얼로그 표시 후 2초 뒤 자동으로 닫기
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            Navigator.of(dialogContext).pop(); // 다이얼로그 닫기
+          }
+        });
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0), // 둥근 모서리
+          ),
+          contentPadding: const EdgeInsets.all(20.0), // 내부 패딩
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // 콘텐츠 크기에 맞춤
+            children: [
+              const Icon(
+                Icons.check_circle_outline, // 체크 아이콘
+                color: Colors.green,
+                size: 60,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                '이미지가 갤러리에 저장되었습니다!',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                '2초 뒤 자동으로 사라집니다.',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _downloadImageFromS3() async {
     // 이미 다운로드 중이면 다시 실행하지 않음
     if (_isDownloading) return;
@@ -289,9 +334,10 @@ class _ResultScreenState extends State<ResultScreen> {
       await GallerySaver.saveImage(path, albumName: 'MBTI 결과');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('이미지가 갤러리에 다운로드되었습니다!')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('이미지가 갤러리에 다운로드되었습니다!')),
+        // );
+        _showCustomDownloadSuccessDialog();
       }
     } catch (e) {
       logger.e('이미지 다운로드 실패: $e');

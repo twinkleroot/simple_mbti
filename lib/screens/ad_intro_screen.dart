@@ -3,6 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../data/ui_data.dart';
 import '../utils/fade_page_route.dart';
 import '../screens/result_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AdIntroScreen extends StatefulWidget {
   final String mbtiResult;
@@ -23,7 +24,7 @@ class _AdIntroScreenState extends State<AdIntroScreen> {
       _isAdLoading = true; // 로딩 상태 시작
     });
 
-    final adUnitId = 'ca-app-pub-9349659716533734/9186472609';
+    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_FULLPAGE']!;
 
     InterstitialAd.load(
       adUnitId: adUnitId,

@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadBannerAd() {
-    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID']!;
+    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_BANNER']!;
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
       size: AdSize.banner,
