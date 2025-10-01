@@ -4,6 +4,7 @@ import '../utils/fade_page_route.dart';
 import '../services/question_manager.dart';
 import 'question_screen.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // 1. 시작 화면 (StatefulWidget으로 변경)
 class HomeScreen extends StatefulWidget {
@@ -25,11 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadBannerAd() {
-    final adUnitId = 'ca-app-pub-9349659716533734/1643573240'; // Android 테스트 ID
-    // 플랫폼에 따라 다른 테스트 ID를 사용합니다.
-    // final adUnitId = Platform.isAndroid
-    //     ? 'ca-app-pub-3940256099942544/6300978111' // Android 테스트 ID
-    //     : 'ca-app-pub-3940256099942544/2934735716'; // iOS 테스트 ID
+    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID']!;
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
       size: AdSize.banner,
@@ -102,11 +99,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       // 4. 화면 하단에 광고 위젯 추가
       bottomNavigationBar: _isAdLoaded
-          ? SizedBox(
-        height: _bannerAd.size.height.toDouble(),
-        width: _bannerAd.size.width.toDouble(),
-        child: AdWidget(ad: _bannerAd),
-      )
+          ? SafeArea(
+              child: SizedBox(
+                height: _bannerAd.size.height.toDouble(),
+                width: _bannerAd.size.width.toDouble(),
+                child: AdWidget(ad: _bannerAd),
+              ),
+            )
           : const SizedBox(),
     );
   }

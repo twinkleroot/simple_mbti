@@ -1,6 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.heeee.simple_mbti">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="simple_mbti"
+        android:label="MBTI 1분 검사"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,7 +32,7 @@
             android:value="ca-app-pub-9349659716533734~4356817753"/>
         <meta-data
             android:name="com.kakao.sdk.AppKey"
-            android:value="8fb42a2c21d5aacb4e272f60014ca431" />
+            android:value="${KAKAO_NATIVE_APP_KEY}" />
         <activity
             android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
             android:exported="true">
@@ -38,8 +40,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
-                    android:scheme="kakao8fb42a2c21d5aacb4e272f60014ca431"
+                    android:scheme="kakao${KAKAO_NATIVE_APP_KEY}"
                     android:host="oauth" />
             </intent-filter>
         </activity>
@@ -55,6 +58,7 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <package android:name="com.kakao.talk" />
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

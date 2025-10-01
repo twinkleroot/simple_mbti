@@ -1,4 +1,4 @@
-package com.example.simple_mbti
+package com.heeee.simple_mbti
 
 import io.flutter.embedding.android.FlutterActivity
 
