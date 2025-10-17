@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -6,7 +7,27 @@ import './data/ui_data.dart';
 import './screens/splash_screen.dart';
 
 Future<void> main() async {
+  // Flutter 엔진과 위젯 바인딩을 확실히 초기화합니다.
+  // main 함수가 비동기로 실행될 때 runApp 전에 필수적으로 호출해야 합니다.
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Edge-to-Edge 모드를 활성화합니다.
+  // 이렇게 하면 앱이 상태 표시줄과 내비게이션 바 영역까지 그려집니다.
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  // 2. 시스템 UI 오버레이 스타일을 설정합니다.
+  // 상태 표시줄과 내비게이션 바를 투명하게 만듭니다.
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    // 상태 표시줄을 투명하게 설정
+    statusBarColor: Colors.transparent,
+    // 내비게이션 바를 투명하게 설정
+    systemNavigationBarColor: Colors.transparent,
+    // 내비게이션 바 아이콘 색상 (어두운 배경용)
+    systemNavigationBarIconBrightness: Brightness.light,
+    // 상태 표시줄 아이콘 색상 (밝은 배경용 - 필요시 Brightness.light로 변경)
+    statusBarIconBrightness: Brightness.dark,
+  ));
+
   // .env 파일 로드. 앱 시작 시 딱 한 번만 호출하면 됩니다.
   await dotenv.load(fileName: ".env");
 
@@ -23,7 +44,7 @@ class MBTIApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '간단 MBTI 테스트',
+      title: 'MBTI 1분 검사',
       theme: ThemeData(
         brightness: Brightness.dark, // 다크 테마 설정
         primaryColor: primaryColor,

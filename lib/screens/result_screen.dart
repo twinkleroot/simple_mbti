@@ -63,163 +63,165 @@ class _ResultScreenState extends State<ResultScreen> {
     final compatibility =
         (resultData?['compatibility'] as List<String>?)?.join(', ') ?? '';
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('검사 결과')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(
-              '당신의 성격 유형은...',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 24.0, horizontal: 16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      widget.mbtiResult,
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text(
-                        resultData?['simple'] as String? ?? '결과를 찾을 수 없습니다.',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.color,
+    return SafeArea(
+        child: Scaffold(
+          appBar: AppBar(title: const Text('검사 결과')),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  '당신의 성격 유형은...',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 24.0, horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          widget.mbtiResult,
+                          style: Theme.of(context).textTheme.headlineLarge,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                resultData?['detail'] as String? ?? '',
-                                textAlign: TextAlign.justify,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(height: 1.6),
-                              ),
-                              const SizedBox(height: 24),
-                              Text(
-                                '⭐ 추천 직업',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                jobs,
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              const SizedBox(height: 24),
-                              Text(
-                                '🤝 잘 맞는 유형',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                compatibility,
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                            ],
+                        const SizedBox(height: 16),
+                        ExpansionTile(
+                          title: Text(
+                            resultData?['simple'] as String? ?? '결과를 찾을 수 없습니다.',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.color,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        )
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    resultData?['detail'] as String? ?? '',
+                                    textAlign: TextAlign.justify,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(height: 1.6),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    '⭐ 추천 직업',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    jobs,
+                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    '🤝 잘 맞는 유형',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    compatibility,
+                                    style: Theme.of(context).textTheme.bodyLarge,
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // 3. UI에 '다운로드' 버튼 추가 및 로딩 상태 연동
+                ElevatedButton.icon(
+                  icon: _isDownloading
+                      ? Container(
+                    width: 24,
+                    height: 24,
+                    padding: const EdgeInsets.all(2.0),
+                    child: const CircularProgressIndicator(
+                      color: Colors.black,
+                      strokeWidth: 3,
+                    ),
+                  )
+                      : const Icon(Icons.download_rounded),
+                  label: const Text('결과 이미지 다운로드'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50), // 초록색 계열
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: _downloadImageFromS3,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).cardTheme.color,
+                          foregroundColor: Theme.of(context).primaryColor,
+                          side: BorderSide(
+                              color: Theme.of(context).primaryColor, width: 1.5),
+                        ),
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            FadePageRoute(builder: (context) => const HomeScreen()),
+                                (Route<dynamic> route) => false,
+                          );
+                        },
+                        child: const Text('다시 검사하기'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFEE500),
+                          foregroundColor: const Color(0xFF191919),
+                        ),
+                        onPressed: _shareToKakao,
+                        child: const Text('카톡 공유'),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // 3. UI에 '다운로드' 버튼 추가 및 로딩 상태 연동
-            ElevatedButton.icon(
-              icon: _isDownloading
-                  ? Container(
-                width: 24,
-                height: 24,
-                padding: const EdgeInsets.all(2.0),
-                child: const CircularProgressIndicator(
-                  color: Colors.black,
-                  strokeWidth: 3,
-                ),
-              )
-                  : const Icon(Icons.download_rounded),
-              label: const Text('결과 이미지 다운로드'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4CAF50), // 초록색 계열
-                foregroundColor: Colors.white,
-              ),
-              onPressed: _downloadImageFromS3,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).cardTheme.color,
-                      foregroundColor: Theme.of(context).primaryColor,
-                      side: BorderSide(
-                          color: Theme.of(context).primaryColor, width: 1.5),
-                    ),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        FadePageRoute(builder: (context) => const HomeScreen()),
-                            (Route<dynamic> route) => false,
-                      );
-                    },
-                    child: const Text('다시 검사하기'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFEE500),
-                      foregroundColor: const Color(0xFF191919),
-                    ),
-                    onPressed: _shareToKakao,
-                    child: const Text('카톡 공유'),
-                  ),
-                ),
               ],
             ),
-          ],
+          ),
+          // 4. 화면 하단에 광고 위젯 추가
+          bottomNavigationBar: _isAdLoaded
+              ? SafeArea(
+              child : SizedBox(
+                    height: _bannerAd.size.height.toDouble(),
+                    width: _bannerAd.size.width.toDouble(),
+                    child: AdWidget(ad: _bannerAd),
+                  )
+                )
+              : const SizedBox(),
         ),
-      ),
-      // 4. 화면 하단에 광고 위젯 추가
-      bottomNavigationBar: _isAdLoaded
-          ? SafeArea(
-          child : SizedBox(
-                height: _bannerAd.size.height.toDouble(),
-                width: _bannerAd.size.width.toDouble(),
-                child: AdWidget(ad: _bannerAd),
-              )
-            )
-          : const SizedBox(),
     );
   }
 

@@ -97,63 +97,65 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('질문 ${_questionIndex + 1}/${widget.questions.length}'),
-        // 질문 진행 상태를 보여주는 Progress Bar
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4.0),
-          child: LinearProgressIndicator(
-            value: (_questionIndex + 1) / widget.questions.length,
-            backgroundColor: Colors.white.withValues(alpha: 0.8),
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(
-              widget.questions[_questionIndex]['questionText'] as String,
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
+    return SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('질문 ${_questionIndex + 1}/${widget.questions.length}'),
+            // 질문 진행 상태를 보여주는 Progress Bar
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(4.0),
+              child: LinearProgressIndicator(
+                value: (_questionIndex + 1) / widget.questions.length,
+                backgroundColor: Colors.white.withValues(alpha: 0.8),
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
             ),
-            const SizedBox(height: 48),
-            ...(widget.questions[_questionIndex]['answers'] as List<Map<String, Object>>)
-                .map((answer) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: surfaceColor,
-                    foregroundColor: primaryColor,
-                    elevation: 2,
-                    side: const BorderSide(color: primaryColor, width: 1.5),
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  ),
-                  child: Text(
-                      answer['text'] as String,
-                      textAlign: TextAlign.center,
-                  ),
-                  onPressed: () => _answerQuestion(answer['type'] as String),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  widget.questions[_questionIndex]['questionText'] as String,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
                 ),
-              );
-            }),
-          ],
+                const SizedBox(height: 48),
+                ...(widget.questions[_questionIndex]['answers'] as List<Map<String, Object>>)
+                    .map((answer) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: surfaceColor,
+                        foregroundColor: primaryColor,
+                        elevation: 2,
+                        side: const BorderSide(color: primaryColor, width: 1.5),
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                      ),
+                      child: Text(
+                          answer['text'] as String,
+                          textAlign: TextAlign.center,
+                      ),
+                      onPressed: () => _answerQuestion(answer['type'] as String),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          bottomNavigationBar: _isBannerAdLoaded
+              ? SafeArea(
+                  child: SizedBox(
+                    height: _bannerAd.size.height.toDouble(),
+                    width: _bannerAd.size.width.toDouble(),
+                    child: AdWidget(ad: _bannerAd),
+                  )
+                )
+              : const SizedBox.shrink(), // 광고가 로드되지 않았을 때는 빈 공간
         ),
-      ),
-      bottomNavigationBar: _isBannerAdLoaded
-          ? SafeArea(
-              child: SizedBox(
-                height: _bannerAd.size.height.toDouble(),
-                width: _bannerAd.size.width.toDouble(),
-                child: AdWidget(ad: _bannerAd),
-              )
-            )
-          : const SizedBox.shrink(), // 광고가 로드되지 않았을 때는 빈 공간
     );
   }
 }

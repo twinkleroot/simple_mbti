@@ -28,11 +28,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // 이미지를 화면 중앙에 배치합니다.
-      body: Center(
-        // 여기에 준비한 이미지 파일 경로를 넣으세요.
-        child: Image.asset('assets/loading.png'),
+    return SafeArea(
+        child: Scaffold(
+        // 이미지를 화면 중앙에 배치합니다.
+        body: Center(
+          // 여기에 준비한 이미지 파일 경로를 넣으세요.
+          child: Image.asset('assets/loading.png'),
+        ),
       ),
     );
   }
