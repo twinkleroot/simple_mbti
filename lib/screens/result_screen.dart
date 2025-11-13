@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:dio/dio.dart';
@@ -9,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../data/mbti_data.dart';
 import '../utils/logger.dart';
 import '../utils/fade_page_route.dart';
+import '../widgets/reusable_banner_ad.dart'; // ReusableBannerAd import
 import 'home_screen.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -20,39 +20,16 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  late BannerAd _bannerAd;
-  bool _isAdLoaded = false;
   bool _isDownloading = false;
   final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_BANNER']!;
 
   @override
   void initState() {
     super.initState();
-    _loadBannerAd();
-  }
-
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: adUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            _isAdLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
-    );
-    _bannerAd.load();
   }
 
   @override
   void dispose() {
-    _bannerAd.dispose();
     super.dispose();
   }
 
@@ -212,15 +189,7 @@ class _ResultScreenState extends State<ResultScreen> {
             ),
           ),
           // 4. 화면 하단에 광고 위젯 추가
-          bottomNavigationBar: _isAdLoaded
-              ? SafeArea(
-              child : SizedBox(
-                    height: _bannerAd.size.height.toDouble(),
-                    width: _bannerAd.size.width.toDouble(),
-                    child: AdWidget(ad: _bannerAd),
-                  )
-                )
-              : const SizedBox(),
+          bottomNavigationBar: const ReusableBannerAd(),
         ),
     );
   }

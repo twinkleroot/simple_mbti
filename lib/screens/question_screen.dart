@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../services/ad_service.dart'; // AdService import
+import '../widgets/reusable_banner_ad.dart'; // ReusableBannerAd import
 import '../utils/fade_page_route.dart';
 import '../data/ui_data.dart';
 import 'ad_intro_screen.dart';
@@ -17,48 +16,19 @@ class QuestionScreen extends StatefulWidget {
 }
 
 class _QuestionScreenState extends State<QuestionScreen> {
-  final player = AudioPlayer();
   int _questionIndex = 0;
   final Map<String, int> _scores = {
     'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0,
   };
 
-  // 배너 광고에 필요한 변수
-  late BannerAd _bannerAd;
-  bool _isBannerAdLoaded = false;
-
   @override
   void initState() {
     super.initState();
-    // 배너 광고 로드 함수 호출
-    _loadBannerAd();
-  }
-
-  // 배너 광고 로드 함수
-  void _loadBannerAd() {
-    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_BANNER']!;
-    _bannerAd = BannerAd(
-      adUnitId: adUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            _isBannerAdLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
-    );
-    _bannerAd.load();
+    AdService().preloadInterstitialAd();
   }
 
   void _answerQuestion(String type) {
     _scores[type] = _scores[type]! + 1;
-
-    player.play(AssetSource('sounds/click.mp3'));
 
     // 변경점: 다음 질문으로 넘어가기 전에, 마지막 질문인지 먼저 확인합니다.
     if (_questionIndex + 1 >= widget.questions.length) {
@@ -88,10 +58,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   @override
   void dispose() {
-    // 4. 배너 광고 리소스 해제
-    _bannerAd.dispose();
-    // 소리 리소스 해제
-    player.dispose();
     super.dispose();
   }
 
@@ -146,15 +112,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
               ],
             ),
           ),
-          bottomNavigationBar: _isBannerAdLoaded
-              ? SafeArea(
-                  child: SizedBox(
-                    height: _bannerAd.size.height.toDouble(),
-                    width: _bannerAd.size.width.toDouble(),
-                    child: AdWidget(ad: _bannerAd),
-                  )
-                )
-              : const SizedBox.shrink(), // 광고가 로드되지 않았을 때는 빈 공간
+          bottomNavigationBar: const ReusableBannerAd(),
         ),
     );
   }

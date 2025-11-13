@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../data/ui_data.dart';
 import '../utils/fade_page_route.dart';
 import '../screens/result_screen.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../services/ad_service.dart'; // AdService import
 
 class AdIntroScreen extends StatefulWidget {
   final String mbtiResult;
@@ -15,51 +14,7 @@ class AdIntroScreen extends StatefulWidget {
 }
 
 class _AdIntroScreenState extends State<AdIntroScreen> {
-  InterstitialAd? _resultAd;
-  bool _isAdLoading = false; // 광고 로딩 중 상태 표시를 위한 변수
-
-  // 버튼을 누르면 광고를 로드하고 표시하는 함수
-  void _loadAndShowResultAd() {
-    setState(() {
-      _isAdLoading = true; // 로딩 상태 시작
-    });
-
-    final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_FULLPAGE']!;
-
-    InterstitialAd.load(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          _resultAd = ad;
-          setState(() {
-            _isAdLoading = false; // 로딩 상태 종료
-          });
-
-          ad.fullScreenContentCallback = FullScreenContentCallback(
-            onAdDismissedFullScreenContent: (ad) {
-              ad.dispose();
-              _navigateToResult();
-            },
-            onAdFailedToShowFullScreenContent: (ad, error) {
-              ad.dispose();
-              _navigateToResult();
-            },
-          );
-
-          ad.show();
-        },
-        onAdFailedToLoad: (error) {
-          setState(() {
-            _isAdLoading = false;
-          });
-          _navigateToResult(); // 광고 로드 실패 시에도 결과는 보여줌
-        },
-      ),
-    );
-  }
-
-  void _navigateToResult() {
+  void _navigateToResult(BuildContext context) {
     Navigator.pushReplacement(
       context,
       FadePageRoute(
@@ -70,7 +25,6 @@ class _AdIntroScreenState extends State<AdIntroScreen> {
 
   @override
   void dispose() {
-    _resultAd?.dispose();
     super.dispose();
   }
 
@@ -99,11 +53,16 @@ class _AdIntroScreenState extends State<AdIntroScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
-                  _isAdLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ElevatedButton(
-                    onPressed: _loadAndShowResultAd,
-                    child: const Text('결과 보러 가기'),
+                  ElevatedButton(
+                      onPressed: () {
+                        AdService().showPreloadedInterstitialAd(
+                          context: context,
+                          onAdDismissed: () {
+                            _navigateToResult(context);
+                          },
+                        );
+                      },
+                      child: const Text('결과 보러 가기'),
                   ),
                 ],
               ),
