@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
         // 이미지를 화면 중앙에 배치합니다.
         body: Center(
           // 여기에 준비한 이미지 파일 경로를 넣으세요.
-          child: Image.asset('assets/loading.png'),
+          child: Image.asset('assets/loading_2.png'),
         ),
       ),
     );
