@@ -50,6 +50,10 @@ Future<void> main() async {
 class MBTIApp extends StatelessWidget {
   const MBTIApp({super.key});
 
+  // 👇 Firebase Analytics 인스턴스 및 옵저버 생성 추가
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
