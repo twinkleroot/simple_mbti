@@ -19,6 +19,7 @@ if (keystorePropertiesFile.exists()) {
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -67,6 +68,13 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
+}
+
+dependencies {
+     // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
 }
 
 flutter {

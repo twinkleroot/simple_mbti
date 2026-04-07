@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "850367276526",
+    "project_id": "simplembtitest",
+    "storage_bucket": "simplembtitest.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850367276526:android:e38032f86a529ca253daff",
+        "android_client_info": {
+          "package_name": "com.heeee.simple_mbti"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFWiegKZ01AbVTJaaFXuY4Mo2KupmUYZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
