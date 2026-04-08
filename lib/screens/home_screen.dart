@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/ui_data.dart';
 import '../utils/fade_page_route.dart';
 import '../services/question_manager.dart';
-import '../widgets/reusable_banner_ad.dart'; // ReusableBannerAd import
+import '../widgets/reusable_banner.dart';
 import 'question_screen.dart';
 
 // 1. 시작 화면 (StatefulWidget으로 변경)

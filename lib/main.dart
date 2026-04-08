@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import './data/ui_data.dart';
-import './screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:applovin_max/applovin_max.dart';
+import 'package:simple_mbti/utils/logger.dart';
+import './data/ui_data.dart';
+import './screens/splash_screen.dart';
+
 
 Future<void> main() async {
   // Flutter 엔진과 위젯 바인딩을 확실히 초기화합니다.
-  // main 함수가 비동기로 실행될 때 runApp 전에 필수적으로 호출해야 합니다.
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(); // Firebase 초기화
+  // Firebase 초기화
+  await Firebase.initializeApp();
 
-  // Firebase 초기화 (firebase_options.dart 사용)
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // (앱 실행 시 자동으로 데이터 수집 시작)
-  // FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-
-  // 1. Edge-to-Edge 모드를 활성화합니다.
+    // 1. Edge-to-Edge 모드를 활성화합니다.
   // 이렇게 하면 앱이 상태 표시줄과 내비게이션 바 영역까지 그려집니다.
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
@@ -42,7 +39,11 @@ Future<void> main() async {
 
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
 
-  await MobileAds.instance.initialize();
+  // AppLovin SDK 초기화
+  // .env에 APPLOVIN_SDK_KEY가 등록되어 있어야 합니다.
+  var sdkConfiguration = await AppLovinMAX.initialize(dotenv.env['APPLOVIN_SDK_KEY']!);
+  logger.i('AppLovin SDK Initialized: $sdkConfiguration');
+
   runApp(const MBTIApp());
 }
 

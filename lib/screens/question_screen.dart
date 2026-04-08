@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/ad_service.dart'; // AdService import
-import '../widgets/reusable_banner_ad.dart'; // ReusableBannerAd import
 import '../utils/fade_page_route.dart';
 import '../data/ui_data.dart';
+import '../widgets/reusable_banner.dart';
 import 'ad_intro_screen.dart';
 
 class QuestionScreen extends StatefulWidget {
@@ -12,7 +11,7 @@ class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key, required this.questions});
 
   @override
-  _QuestionScreenState createState() => _QuestionScreenState();
+  State<QuestionScreen> createState() => _QuestionScreenState();
 }
 
 class _QuestionScreenState extends State<QuestionScreen> {
@@ -24,7 +23,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
   @override
   void initState() {
     super.initState();
-    AdService().preloadInterstitialAd();
   }
 
   void _answerQuestion(String type) {

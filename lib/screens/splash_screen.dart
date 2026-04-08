@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../screens/home_screen.dart';
 import '../utils/fade_page_route.dart';
+import 'home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

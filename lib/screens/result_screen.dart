@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../data/mbti_data.dart';
 import '../utils/logger.dart';
 import '../utils/fade_page_route.dart';
-import '../widgets/reusable_banner_ad.dart'; // ReusableBannerAd import
+import '../widgets/reusable_banner.dart';
 import 'home_screen.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -21,7 +21,6 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   bool _isDownloading = false;
-  final adUnitId = dotenv.env['GOOGLE_ADMOB_ID_ANDROID_BANNER']!;
 
   @override
   void initState() {
@@ -37,8 +36,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     final resultData = mbtiDescriptions[widget.mbtiResult];
     final jobs = (resultData?['jobs'] as List<String>?)?.join(', ') ?? '';
-    final compatibility =
-        (resultData?['compatibility'] as List<String>?)?.join(', ') ?? '';
+    final compatibility = (resultData?['compatibility'] as List<String>?)?.join(', ') ?? '';
 
     return SafeArea(
         child: Scaffold(

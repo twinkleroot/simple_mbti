@@ -1,10 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.heeee.simple_mbti">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 광고 플랫폼(애드핏/앱러빈)이 인터넷 연결 상태를 확인하기 위해 필요합니다. -->
+<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+    <!-- Android 13 이상 기기에서 맞춤형 광고(앱러빈 등)를 정상적으로 수신하기 위한 권한입니다. -->
+<!--    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />-->
     <application
         android:label="MBTI 1분 검사"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -27,9 +33,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- AppLovin SDK 키 세팅 (주의: .env가 아니라 여기에 직접 긴 문자열을 넣어야 합니다!) -->
         <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9349659716533734~4356817753"/>
+            android:name="applovin.sdk.key"
+            android:value="111" />
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="${KAKAO_NATIVE_APP_KEY}" />
