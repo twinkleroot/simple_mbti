@@ -9,6 +9,7 @@ import '../data/mbti_data.dart';
 import '../utils/logger.dart';
 import '../utils/fade_page_route.dart';
 import '../widgets/reusable_banner.dart';
+import '../widgets/app_promo_banner.dart';
 import 'home_screen.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -183,6 +184,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+                const AppPromoBanner(),
               ],
             ),
           ),
