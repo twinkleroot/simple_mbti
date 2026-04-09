@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:applovin_max/applovin_max.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 
 import '../data/ui_data.dart';
 import '../utils/fade_page_route.dart';
@@ -17,67 +16,55 @@ class AdIntroScreen extends StatefulWidget {
 }
 
 class _AdIntroScreenState extends State<AdIntroScreen> {
-  late String _interstitialAdUnitId;
+  final String _adPlacementId = 'Manual_Ad_Interstitial_Android'; // 유니티 전면광고 기본 ID
+
+  bool _isNavigating = false; // 중복 화면 이동 방지용 플래그
 
   @override
   void initState() {
     super.initState();
-    // 1. .env 파일에서 AppLovin 전면 광고 ID 가져오기
-    _interstitialAdUnitId = dotenv.env['APPLOVIN_ANDROID_INTERSTITIAL'] ?? '';
-
-    // 2. 화면 진입 시 전면 광고를 백그라운드에서 로드 시작
-    if (_interstitialAdUnitId.isNotEmpty) {
-      _initializeInterstitialAds();
-    }
+    _startAdSequence(); // 화면 진입 시 광고 시퀀스 시작
   }
 
-  void _initializeInterstitialAds() {
-    AppLovinMAX.setInterstitialListener(InterstitialListener(
-      onAdLoadedCallback: (ad) {
-        logger.i('AppLovin 전면 광고 로드 완료');
-      },
-      onAdLoadFailedCallback: (adUnitId, error) {
-        logger.i('AppLovin 전면 광고 로드 실패: ${error.message}');
-      },
-      onAdDisplayedCallback: (ad) {},
-      onAdDisplayFailedCallback: (ad, error) {
-        // 광고 띄우기 실패 시 기다리게 하지 않고 바로 결과로 이동
-        _goToResultScreen();
-      },
-      onAdClickedCallback: (ad) {},
-      onAdHiddenCallback: (ad) {
-        // [핵심] 유저가 광고의 [X] 버튼을 눌러 닫았을 때 결과 화면으로 이동!
-        _goToResultScreen();
-      },
-    ));
-
-    // 로드 요청
-    AppLovinMAX.loadInterstitial(_interstitialAdUnitId);
+  // 로드 -> 재생의 흐름을 갖습니다.
+  Future<void> _startAdSequence() async {
+      _loadAd();
   }
 
-  void _goToResultScreen() {
-    Navigator.pushReplacement(
-      context,
-      FadePageRoute(builder: (context) => ResultScreen(mbtiResult: widget.mbtiResult)),
+  void _loadAd() {
+    UnityAds.load(
+      placementId: _adPlacementId,
+      onComplete: (placementId) {
+        logger.i('광고 로드 성공, 재생 시작');
+        // _showAd();
+      },
+      onFailed: (placementId, error, message) {
+        logger.i('광고 로드 실패: $message');
+        // _goToResultScreen();
+      },
     );
   }
 
-  void _showAdAndGoToResult() async {
-    // 버튼 클릭 시 광고가 준비되었는지 확인
-    bool isReady = (await AppLovinMAX.isInterstitialReady(_interstitialAdUnitId)) ?? false;
-
-    if (isReady) {
-      // 로드된 광고 띄우기 (광고를 닫으면 onAdHiddenCallback 실행되어 결과로 감)
-      AppLovinMAX.showInterstitial(_interstitialAdUnitId);
-    } else {
-      // 광고 로드 실패 상태라면 즉시 결과 화면으로 이동
-      _goToResultScreen();
-    }
+  void _showAd() {
+    UnityAds.showVideoAd(
+      placementId: _adPlacementId,
+      onComplete: (placementId) => _goToResultScreen(), // 시청 완료
+      onFailed: (placementId, error, message) => _goToResultScreen(), // 재생 중 에러
+      onSkipped: (placementId) => _goToResultScreen(), // 건너뛰기
+    );
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void _goToResultScreen() {
+    if (_isNavigating) return;
+    _isNavigating = true;
+
+    if (mounted) {
+      // 기존에 결과 화면으로 파라미터를 넘겨주던 방식이 있다면 동일하게 적용해 주세요.
+      Navigator.pushReplacement(
+        context,
+        FadePageRoute(builder: (context) => ResultScreen(mbtiResult: widget.mbtiResult)),
+      );
+    }
   }
 
   @override
@@ -106,7 +93,7 @@ class _AdIntroScreenState extends State<AdIntroScreen> {
                   ),
                   const SizedBox(height: 48),
                   ElevatedButton(
-                    onPressed: _showAdAndGoToResult,
+                    onPressed: _showAd,
                     child: const Text('결과 보러 가기'),
                   ),
                 ],

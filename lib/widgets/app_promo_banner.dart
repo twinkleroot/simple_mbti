@@ -3,7 +3,7 @@ import 'package:simple_mbti/utils/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppPromoBanner extends StatelessWidget {
-  const AppPromoBanner({Key? key}) : super(key: key);
+  const AppPromoBanner({super.key});
 
   // 플레이스토어 링크로 이동하는 함수
   Future<void> _launchPlayStore() async {

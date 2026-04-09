@@ -1,35 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:applovin_max/applovin_max.dart';
-import 'package:simple_mbti/utils/logger.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
+import '../utils/logger.dart';
 
 class ReusableBannerAd extends StatelessWidget {
   const ReusableBannerAd({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final adUnitId = dotenv.env['APPLOVIN_ANDROID_BANNER'] ?? '';
-
     return Container(
       alignment: Alignment.center,
       width: double.infinity,
-      height: 50.0, // 표준 배너 높이
-      child: MaxAdView(
-        adUnitId: adUnitId,
-        adFormat: AdFormat.banner,
-        listener: AdViewAdListener(
-          onAdLoadedCallback: (ad) {
-            logger.i('앱러빈 배너 로드 성공');
-          },
-          onAdLoadFailedCallback: (adUnitId, error) {
-            logger.i('앱러빈 배너 로드 실패: ${error.message}');
-          },
-          onAdClickedCallback: (ad) {
-            logger.i('앱러빈 배너 클릭됨');
-          },
-          onAdExpandedCallback: (ad) {},
-          onAdCollapsedCallback: (ad) {},
-        ),
+      height: 50, // 유니티 기본 배너 높이
+      color: Colors.transparent,
+      child: UnityBannerAd(
+        placementId: 'Banner_Android', // 유니티 배너 기본 ID
+        onLoad: (placementId) => logger.i('배너 로드 성공'),
+        onFailed: (placementId, error, message) => logger.i('배너 로드 실패: $message'),
+        onClick: (placementId) => logger.i('배너 클릭됨'),
       ),
     );
   }

@@ -45,7 +45,7 @@ dependencies:
   firebase_core: ^4.6.0
   firebase_analytics: ^12.2.0
   shared_preferences: ^2.5.5
-  applovin_max: ^4.6.3
+  unity_ads_plugin: ^0.3.30
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -4,8 +4,8 @@ import 'package:kakao_flutter_sdk_share/kakao_flutter_sdk_share.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:applovin_max/applovin_max.dart';
 import 'package:simple_mbti/utils/logger.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import './data/ui_data.dart';
 import './screens/splash_screen.dart';
 
@@ -17,7 +17,17 @@ Future<void> main() async {
   // Firebase 초기화
   await Firebase.initializeApp();
 
-    // 1. Edge-to-Edge 모드를 활성화합니다.
+  final String gameId = '6086329';
+
+  // 앱 전역에서 사용할 유니티 애즈 초기화
+  await UnityAds.init(
+    gameId: gameId,
+    testMode: const bool.fromEnvironment('dart.vm.product') == false,
+    onComplete: () => logger.i('Unity Ads 전역 초기화 완료'),
+    onFailed: (error, message) => logger.i('Unity Ads 초기화 실패: $message'),
+  );
+
+  // 1. Edge-to-Edge 모드를 활성화합니다.
   // 이렇게 하면 앱이 상태 표시줄과 내비게이션 바 영역까지 그려집니다.
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
@@ -38,11 +48,6 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
-
-  // AppLovin SDK 초기화
-  // .env에 APPLOVIN_SDK_KEY가 등록되어 있어야 합니다.
-  var sdkConfiguration = await AppLovinMAX.initialize(dotenv.env['APPLOVIN_SDK_KEY']!);
-  logger.i('AppLovin SDK Initialized: $sdkConfiguration');
 
   runApp(const MBTIApp());
 }

@@ -33,10 +33,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- AppLovin SDK 키 세팅 (주의: .env가 아니라 여기에 직접 긴 문자열을 넣어야 합니다!) -->
-        <meta-data
-            android:name="applovin.sdk.key"
-            android:value="111" />
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="${KAKAO_NATIVE_APP_KEY}" />
